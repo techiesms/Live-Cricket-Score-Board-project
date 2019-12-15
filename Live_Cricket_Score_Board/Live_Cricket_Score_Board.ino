@@ -16,7 +16,7 @@ Adafruit_ST7735 tft = Adafruit_ST7735(TFT_CS,  TFT_DC, TFT_RST);
 #include <ESP8266WiFiMulti.h>
 #include <ESP8266HTTPClient.h>
 ESP8266WiFiMulti WiFiMulti;
-
+int subject;
 String result;
 String result_1;
 String result_2;
@@ -105,14 +105,15 @@ void loop() {
     tft.setCursor(5, 35);
     tft.setTextColor(ST7735_YELLOW);
     tft.setTextSize(2);
-    tft.println(" Fetching ");
-    tft.println("   Live   ");
+    tft.println(" Fetching");
+    tft.println("   Live");
     tft.println("  Score...");
+
     HTTPClient http;
     Serial.print("[HTTP] begin...\n");
     // configure traged server and url
     //http.begin("https://192.168.1.12/test.html", "7a 9c f4 db 40 d3 62 5a 6e 21 bc 5c cc 66 c8 3e a1 45 59 38"); //HTTPS
-    http.begin("http://api.thingspeak.com/apps/thinghttp/send_request?api_key=Your_API_KEY"); //HTTP
+    http.begin("http://api.thingspeak.com/apps/thinghttp/send_request?api_key=YOUR_API_KEY"); //HTTP
     Serial.print("[HTTP] GET...\n");
     // start connection and send HTTP header
     int httpCode = http.GET();
@@ -123,23 +124,22 @@ void loop() {
       // file found at server
       if (httpCode == HTTP_CODE_OK) {
         String payload = http.getString();
-        Serial.println(payload);
+        payload = payload.substring(0, 2632);
+
+        //Serial.println(payload);
         /***************************************************************************/
         char* temp = &payload[0];
-        int i = 0;
+        uint16_t i = 0;
         while (temp[i] != 'c' || temp[i + 1] != 'o' || temp[i + 2] != 'u' || temp[i + 3] != 'n' || temp[i + 4] != 't' || temp[i + 5] != 'r' || temp[i + 6] != 'y' )
           i++;
         Country_1 = payload.substring(i + 39);
-        int j = 0;
+        uint16_t j = 0;
         while (Country_1.charAt(j) != '<')
           j++;
         Country_1 = Country_1.substring(0, j);
         Serial.println(Country_1);
         /***************************************************************************/
-        int subject = i + 7 + j;
-        payload = payload.substring(subject);
-        temp = &payload[0];
-        i = 0;
+        i = i + 39 + j;
         while (temp[i] != 's' || temp[i + 1] != 'c' || temp[i + 2] != 'o' || temp[i + 3] != 'r' || temp[i + 4] != 'e' )
           i++;
         score_1 = payload.substring(i + 7);
@@ -149,10 +149,7 @@ void loop() {
         score_1 = score_1.substring(0, j);
         Serial.println(score_1);
         /***************************************************************************/
-        subject = i + 9 + j;
-        payload = payload.substring(subject);
-        temp = &payload[0];
-        i = 0;
+        i = i + 7 + j;
         while (temp[i] != 'd' || temp[i + 1] != 'e' || temp[i + 2] != 't' || temp[i + 3] != 'a' || temp[i + 4] != 'i' || temp[i + 5] != 'l' || temp[i + 6] != 's' )
           i++;
         details_1 = payload.substring(i + 9);
@@ -163,50 +160,7 @@ void loop() {
         Serial.println(details_1);
         /***************************************************************************/
         /***************************************************************************/
-        subject = i + 39 + j;
-        payload = payload.substring(subject);
-        temp = &payload[0];
-        i = 0;
-        while (temp[i] != 'c' || temp[i + 1] != 'o' || temp[i + 2] != 'u' || temp[i + 3] != 'n' || temp[i + 4] != 't' || temp[i + 5] != 'r' || temp[i + 6] != 'y' )
-          i++;
-        Country_2 = payload.substring(i + 39);
-        j = 0;
-        while (Country_2.charAt(j) != '<')
-          j++;
-        Country_2 = Country_2.substring(0, j);
-        Serial.println(Country_2);
-        /***************************************************************************/
-        subject = i + 7 + j;
-        payload = payload.substring(subject);
-        temp = &payload[0];
-        i = 0;
-        while (temp[i] != 's' || temp[i + 1] != 'c' || temp[i + 2] != 'o' || temp[i + 3] != 'r' || temp[i + 4] != 'e' )
-          i++;
-        score_2 = payload.substring(i + 7);
-        j = 0;
-        while (score_2.charAt(j) != '<')
-          j++;
-        score_2 = score_2.substring(0, j);
-        Serial.println(score_2);
-        /***************************************************************************/
-        subject = i + 9 + j;
-        payload = payload.substring(subject);
-        temp = &payload[0];
-        i = 0;
-        while (temp[i] != 'd' || temp[i + 1] != 'e' || temp[i + 2] != 't' || temp[i + 3] != 'a' || temp[i + 4] != 'i' || temp[i + 5] != 'l' || temp[i + 6] != 's' )
-          i++;
-        details_2 = payload.substring(i + 9);
-        j = 0;
-        while (details_2.charAt(j) != '<')
-          j++;
-        details_2 = details_2.substring(0, j);
-        Serial.println(details_2);
-        /***************************************************************************/
-        /***************************************************************************/
-        subject = i + 14 + j;
-        payload = payload.substring(subject);
-        temp = &payload[0];
-        i = 0;
+        i = i + 9 + j;
         while (temp[i] != 'r' || temp[i + 1] != 'e' || temp[i + 2] != 's' || temp[i + 3] != 'u' || temp[i + 4] != 'l' || temp[i + 5] != 't' || temp[i + 6] != 's' )
           i++;
         result = payload.substring(i + 14);
@@ -215,7 +169,54 @@ void loop() {
           j++;
         result = result.substring(0, j);
         Serial.println(result);
+
+        i = i + 14 + j;
+        while (temp[i] != 'c' || temp[i + 1] != 'o' || temp[i + 2] != 'u' || temp[i + 3] != 'n' || temp[i + 4] != 't' || temp[i + 5] != 'r' || temp[i + 6] != 'y' )
+          i++;
+        Country_2 = payload.substring(i + 39);
+        j = 0;
+        while (Country_2.charAt(j) != '<')
+          j++;
+        Country_2 = Country_2.substring(0, j);
+        Serial.println(Country_2);
+
+
+
+
+
+        //String New_payload = payload;
+
+
         /***************************************************************************/
+
+        i = i + 39 + j;
+        while (temp[i] != 'm' || temp[i + 1] != 'a' || temp[i + 2] != 't' || temp[i + 3] != 'c' || temp[i + 4] != 'h' || temp[i + 5] != '-' || temp[i + 6] != 's' || temp[i + 7] != 'c' || temp[i + 8] != 'o' || temp[i + 9] != 'r' || temp[i + 10] != 'e')
+        {
+          i++;
+        }
+        score_2 = payload.substring(i + 13);
+        j = 0;
+        while (score_2.charAt(j) != '<')
+          j++;
+        score_2 = score_2.substring(0, j);
+        Serial.println(score_2);
+
+        /***************************************************************************/
+
+
+        i = i + 13 + j;
+        Serial.println(payload.substring(i));
+        while (temp[i] != 'd' || temp[i + 1] != 'e' || temp[i + 2] != 't' || temp[i + 3] != 'a' || temp[i + 4] != 'i' || temp[i + 5] != 'l' || temp[i + 6] != 's' )
+          i++;
+        details_2 = payload.substring(i + 9);
+        Serial.println(details_2);
+        j = 0;
+        while (details_2.charAt(j) != '<')
+          j++;
+        details_2 = details_2.substring(0, j);
+        Serial.println(details_2);
+        /***************************************************************************/
+
       }
     } else {
       tft.setTextWrap(false);
@@ -289,7 +290,7 @@ void tftPrintTest() {
   }
 
   tft.setTextSize(1);
-  tft.setCursor(60 ,65);
+  tft.setCursor(60 , 65);
   tft.setTextColor(ST7735_CYAN);
   tft.print("vs");
 
@@ -326,7 +327,7 @@ void tftPrintTest() {
 
   delay(5000);
 
-  tft.setCursor(30, 5);
+  tft.setCursor(20, 5);
   tft.fillScreen(ST7735_BLACK);
   tft.setTextColor(ST7735_WHITE);
   tft.setTextSize(1);
